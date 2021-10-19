@@ -4,18 +4,16 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Scanner;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
+import javax.swing.border.*;
+import java.awt.geom.*;
 public class App {
     private JPanel panel1;
     private JComboBox fromComboBox;
@@ -27,9 +25,14 @@ public class App {
     private JTable table1;
     private JPanel historyjpanel;
     private JButton swapButton;
+    private JButton button1;
     public JComboBox listKeyLanguage;
     public String[] langKey;
 
+    ArrayList<String> dataFromTo= new ArrayList<>();
+    ArrayList<String> dataFrom= new ArrayList<>();
+    ArrayList<String> dataTo= new ArrayList<>();
+    String[] listKeyLanguage1;
     public static String[] getList(String filePath) throws IOException {
         String[] list = {};
         String url = filePath;
@@ -80,19 +83,19 @@ public class App {
             FileWriter fw1 = new FileWriter("data\\FromTo.txt", true);
             BufferedWriter bw1 = new BufferedWriter(fw1);
             PrintWriter pw1 = new PrintWriter(bw1);
-            pw1.println(FromTo);
+            pw1.print("\n"+FromTo);
             pw1.close();
 
             FileWriter fw2 = new FileWriter("data\\From.txt",true);
             BufferedWriter bw2 = new BufferedWriter(fw2);
             PrintWriter pw2 = new PrintWriter(bw2);
-            pw2.println(From.replace("\n", " "));
+            pw2.print("\n"+From.replace("\n", " "));
             pw2.close();
 
             FileWriter fw3 = new FileWriter("data\\To.txt",true);
             BufferedWriter bw3 = new BufferedWriter(fw3);
             PrintWriter pw3 = new PrintWriter(bw3);
-            pw3.println(To);
+            pw3.print("\n"+To);
             pw3.close();
         } catch (Exception e) {
             System.out.println(e);
@@ -123,7 +126,7 @@ public class App {
     }
     public void loadDataTotable()
     {
-        Object[] columns = {"", "From", "To"};
+        Object[] columns = {"Language", "From", "To"};
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(columns);
 
@@ -134,9 +137,9 @@ public class App {
         // quy dinh bang co bao nhieu cot
 
 
-        ArrayList<String> dataFromTo= new ArrayList<>();
-        ArrayList<String> dataFrom= new ArrayList<>();
-        ArrayList<String> dataTo= new ArrayList<>();
+//        ArrayList<String> dataFromTo= new ArrayList<>();
+//        ArrayList<String> dataFrom= new ArrayList<>();
+//        ArrayList<String> dataTo= new ArrayList<>();
         try {
             dataFromTo = getList2("data\\FromTo.txt");
             dataFrom = getList2("data\\From.txt");
@@ -147,7 +150,7 @@ public class App {
             e.printStackTrace();
         }
         Object[] row = new Object[3];
-        for (int i = dataFromTo.size()-1;i>=0 ;i--)
+        for (int i = dataFromTo.size()-1;i>=0 ;--i)
         {
             row[0] = dataFromTo.get(i);
             row[1] = dataFrom.get(i);
@@ -156,11 +159,18 @@ public class App {
         }
         // add row to the model
         model.addRow(row);
+        table1.setRowHeight(20);
+        table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table1.getColumnModel().getColumn(0).setPreferredWidth(100);
+        table1.getColumnModel().getColumn(1).setPreferredWidth(400);
+        table1.getColumnModel().getColumn(2).setPreferredWidth(400);
+
+
     }
     public App() {
-        //table history
-            loadDataTotable();
+//        Tạo bo tròn
 
+        //table history
 
         //table history hide
         historyjpanel.setVisible(false);
@@ -171,19 +181,23 @@ public class App {
                 if (historyjpanel.isVisible()) {
                     //table history hide
                     historyjpanel.setVisible(false);
+                    historyButton.setText("History");
+
                 } else {
                     //table history show
                     historyjpanel.setVisible(true);
+                    historyButton.setText("Hide History");
+                    loadDataTotable();
                 }
             }
         });
-    // Swap button để chuyển đổi
+
 
         //table history end
 
         try {
             String[] listLanguage = getList("data\\languagelist.txt");
-            String[] listKeyLanguage1 = getList("data\\languagekeylist.txt");
+            listKeyLanguage1 = getList("data\\languagekeylist.txt");
             langKey = listKeyLanguage1;
 
             for (String item : listLanguage) {
@@ -200,10 +214,28 @@ public class App {
         comboBox2.setSelectedIndex(101);
 
         try {
-            Image img = ImageIO.read(getClass().getResource("img\\replace_64px.png"));
-            swapButton.setIcon(new ImageIcon(img));
+//            giao diện nút swap
+            ImageIcon img = new ImageIcon("img\\replace_64px.png");
+            swapButton.setIcon(img);
+            swapButton.setBorder(null);
+//            giao diện nút translate
+            ImageIcon img1 = new ImageIcon("img\\weglot-translate-guide-wpk3.jpg");
+            translateButton.setIcon(img1);
+            translateButton.setBorder(null);
+//            giao diện nút delete
+            ImageIcon img2 = new ImageIcon("img\\icons8_replace_16.png");
+            button1.setIcon(img2);
+            button1.setBorder(null);
+
+            fromComboBox.setBorder(null);
+            comboBox2.setBorder(null);
+
+//            giao diện nút history
+            ImageIcon img3 = new ImageIcon("img\\activity_history_50px.png");
+            historyButton.setIcon(img3);
+            historyButton.setBorder(null);
         } catch (Exception ex) {
-            System.out.println("Lỗi");
+            ex.printStackTrace();
         }
 //        Swap button để chuyển đổi ngôn ngữ
         swapButton.addActionListener(new ActionListener() {
@@ -220,7 +252,16 @@ public class App {
                 editorPane2.setText(t1);
             }
         });
-//        nhấn để dịch
+//        Nút delete
+
+        button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editorPane1.setText("");
+                editorPane2.setText("");
+            }
+        });
+//        nút dịch
         translateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -230,10 +271,11 @@ public class App {
                 }
                 else
                 {
-                    loadDataTotable();
+
                     String a = langKey[fromComboBox.getSelectedIndex()];
                     String b = langKey[comboBox2.getSelectedIndex()];
                     String text = editorPane1.getText();
+                    loadDataTotable();
                     try {
                         String translatedText = translate(a, b, text);
                         editorPane2.setText(translatedText);
@@ -242,24 +284,66 @@ public class App {
                     } catch (Exception IOException) {
                         infoBox("Đã xảy ra lỗi, vui lòng nhập lại", "Eror");
                     }
+                    loadDataTotable();
                 }
-
 
             }
         });
+        table1.setDefaultEditor(Object.class, null);
+        table1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
 
+                    int id = table1.getSelectedRow();
+                    int id2=0;
+                    int y=-1;
+                    for (int i = (table1.getRowCount()-2);i>=0;i--)
+                    {
+                        y+=1;
+                        if(y==id)
+                        {
+                            id2 =i;
+
+                            break;
+                        }
+
+                    }
+                    String ft = dataFromTo.get(id2);
+                    String[] ft2 = ft.split("-");
+                    for (int i = (listKeyLanguage1.length-1);i>=0;i--)
+                    {
+                        if(listKeyLanguage1[i].equals(ft2[0]))
+                        {
+                            fromComboBox.setSelectedIndex(i);
+                        }
+                        if (listKeyLanguage1[i].equals(ft2[1]))
+                        {
+                            comboBox2.setSelectedIndex(i);
+                        }
+                    }
+                    editorPane1.setText(dataFrom.get(id2));
+                    editorPane2.setText(dataTo.get(id2));
+
+                super.mouseClicked(e);
+            }
+        });
 
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("APP");
+        JFrame frame = new JFrame("Translate App");
         frame.setContentPane(new App().panel1);
         frame.setSize(1000, 700);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-
+        try {
+            frame.setIconImage(ImageIO.read(new File("img\\google_translate_50px.png")));
+        }
+        catch (IOException exc) {
+            exc.printStackTrace();
+        }
 
 
     }
