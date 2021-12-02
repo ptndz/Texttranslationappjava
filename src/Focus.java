@@ -1,0 +1,2 @@
+public class Focus {
+}

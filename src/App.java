@@ -26,9 +26,13 @@ public class App {
     private JPanel historyjpanel;
     private JButton swapButton;
     private JButton button1;
+    private JButton removeButton;
+    private JButton deleteHistoryButton;
     public JComboBox listKeyLanguage;
     public String[] langKey;
-
+    public String FileFromTo = "data\\FromTo.txt";
+    public String FileFrom = "data\\From.txt";
+    public String FileTo = "data\\To.txt";
     ArrayList<String> dataFromTo= new ArrayList<>();
     ArrayList<String> dataFrom= new ArrayList<>();
     ArrayList<String> dataTo= new ArrayList<>();
@@ -53,6 +57,7 @@ public class App {
                 ex.printStackTrace();
             }
         }
+
         return list;
     }
     public static ArrayList<String> getList2(String filePath) throws IOException {
@@ -75,8 +80,10 @@ public class App {
                 ex.printStackTrace();
             }
         }
+        list.remove("");
         return list;
     }
+
     public static void addTodata(String FromTo, String From, String To)
     {
         try {
@@ -158,13 +165,42 @@ public class App {
             model.addRow(row);
         }
         // add row to the model
-        model.addRow(row);
+
         table1.setRowHeight(20);
         table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table1.getColumnModel().getColumn(0).setPreferredWidth(100);
         table1.getColumnModel().getColumn(1).setPreferredWidth(400);
         table1.getColumnModel().getColumn(2).setPreferredWidth(400);
+    }
+    public  void deleteRow(int idRow) throws FileNotFoundException {
+        try {
+            dataFromTo = getList2("data\\FromTo.txt");
+            dataFrom = getList2("data\\From.txt");
+            dataTo = getList2("data\\To.txt");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
+        if(idRow<dataFromTo.size())
+        {
+            dataFromTo.remove(idRow);
+            dataFrom.remove(idRow);
+            dataTo.remove(idRow);
+            PrintWriter writer = new PrintWriter("data\\FromTo.txt");
+            writer.print("");
+            writer.close();
+            PrintWriter writer1 = new PrintWriter("data\\From.txt");
+            writer1.print("");
+            writer1.close();PrintWriter writer2 = new PrintWriter("data\\To.txt");
+            writer2.print("");
+            writer2.close();
+            for (int i =0;i<dataFromTo.size();i++)
+            {
+                addTodata(dataFromTo.get(i),dataFrom.get(i),dataTo.get(i));
+            }
+        }
 
     }
     public App() {
@@ -174,19 +210,22 @@ public class App {
 
         //table history hide
         historyjpanel.setVisible(false);
-
+        removeButton.setVisible(false);
+        deleteHistoryButton.setVisible(false);
         historyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                removeButton.setVisible(false);
                 if (historyjpanel.isVisible()) {
                     //table history hide
                     historyjpanel.setVisible(false);
                     historyButton.setText("History");
-
+                    deleteHistoryButton.setVisible(false);
                 } else {
                     //table history show
                     historyjpanel.setVisible(true);
                     historyButton.setText("Hide History");
+                    deleteHistoryButton.setVisible(true);
                     loadDataTotable();
                 }
             }
@@ -223,7 +262,7 @@ public class App {
             translateButton.setIcon(img1);
             translateButton.setBorder(null);
 //            giao diện nút delete
-            ImageIcon img2 = new ImageIcon("img\\icons8_replace_16.png");
+            ImageIcon img2 = new ImageIcon("img\\replace_26px.png");
             button1.setIcon(img2);
             button1.setBorder(null);
 
@@ -234,11 +273,18 @@ public class App {
             ImageIcon img3 = new ImageIcon("img\\activity_history_50px.png");
             historyButton.setIcon(img3);
             historyButton.setBorder(null);
+            ImageIcon img4 = new ImageIcon("img\\delete_64px.png");
+            removeButton.setIcon(img4);
+            removeButton.setBorder(null);
+
+            ImageIcon img5 = new ImageIcon("img\\delete_bin_30px.png");
+            deleteHistoryButton.setIcon(img5);
+            deleteHistoryButton.setBorder(null);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 //        Swap button để chuyển đổi ngôn ngữ
-        swapButton.addActionListener(new ActionListener() {
+        button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int a = fromComboBox.getSelectedIndex();
@@ -254,15 +300,16 @@ public class App {
         });
 //        Nút delete
 
-        button1.addActionListener(new ActionListener() {
+        /*button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editorPane1.setText("");
                 editorPane2.setText("");
             }
-        });
+        });*/
+
 //        nút dịch
-        translateButton.addActionListener(new ActionListener() {
+        swapButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(editorPane1.getText().replaceAll(" ", "").equals(""))
@@ -289,45 +336,102 @@ public class App {
 
             }
         });
+
+
         table1.setDefaultEditor(Object.class, null);
         table1.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                removeButton.setVisible(true);
+
 
                     int id = table1.getSelectedRow();
                     int id2=0;
                     int y=-1;
-                    for (int i = (table1.getRowCount()-2);i>=0;i--)
+                    for (int i = (table1.getRowCount()-1);i>=0;i--)
                     {
                         y+=1;
                         if(y==id)
                         {
                             id2 =i;
-
                             break;
                         }
-
                     }
-                    String ft = dataFromTo.get(id2);
-                    String[] ft2 = ft.split("-");
-                    for (int i = (listKeyLanguage1.length-1);i>=0;i--)
+                if(id2<dataFromTo.size())
+                {
+                    if(dataFromTo.size()>1)
                     {
-                        if(listKeyLanguage1[i].equals(ft2[0]))
+                        String ft = dataFromTo.get(id2);
+                        String[] ft2 = ft.split("-");
+                        for (int i = (listKeyLanguage1.length-1);i>0;i--)
                         {
-                            fromComboBox.setSelectedIndex(i);
+                            if(listKeyLanguage1[i].equals(ft2[0]))
+                            {
+                                fromComboBox.setSelectedIndex(i);
+                            }
+                            if (listKeyLanguage1[i].equals(ft2[1]))
+                            {
+                                comboBox2.setSelectedIndex(i);
+                            }
                         }
-                        if (listKeyLanguage1[i].equals(ft2[1]))
-                        {
-                            comboBox2.setSelectedIndex(i);
-                        }
+                        editorPane1.setText(dataFrom.get(id2));
+                        editorPane2.setText(dataTo.get(id2));
                     }
-                    editorPane1.setText(dataFrom.get(id2));
-                    editorPane2.setText(dataTo.get(id2));
+
+
+                }
 
                 super.mouseClicked(e);
             }
         });
+    deleteHistoryButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
 
+            try {
+                PrintWriter writer = new PrintWriter("data\\FromTo.txt");
+                writer.print("");
+                writer.close();
+                PrintWriter writer1 = new PrintWriter("data\\From.txt");
+                writer1.print("");
+                writer1.close();PrintWriter writer2 = new PrintWriter("data\\To.txt");
+                writer2.print("");
+                writer2.close();
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+            loadDataTotable();
+            infoBox("Đã xóa toàn bộ lịch sử", "Information");
+        }
+    });
+    removeButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(table1.getSelectedRow()>-1)
+            {
+                try {
+                    System.out.println(table1.getSelectedRow());
+                    int id = table1.getSelectedRow();
+                    int id2=0;
+                    int y=-1;
+                    for (int i = table1.getRowCount()-1;i>=0;i--)
+                    {
+                        if(y==id)
+                        {
+                            id2 =y;
+                            break;
+                        }
+                        y+=1;
+                    }
+                    deleteRow(id2);
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+                loadDataTotable();
+            }
+
+        }
+    });
     }
 
     public static void main(String[] args) {
@@ -344,8 +448,6 @@ public class App {
         catch (IOException exc) {
             exc.printStackTrace();
         }
-
-
     }
 
     private void createUIComponents() {
