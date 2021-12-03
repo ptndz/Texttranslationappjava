@@ -1,6 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.concurrent.TimeUnit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,6 +34,7 @@ public class App {
     public String FileFromTo = "data\\FromTo.txt";
     public String FileFrom = "data\\From.txt";
     public String FileTo = "data\\To.txt";
+    public  static int xn=-1;
     ArrayList<String> dataFromTo= new ArrayList<>();
     ArrayList<String> dataFrom= new ArrayList<>();
     ArrayList<String> dataTo= new ArrayList<>();
@@ -209,6 +211,7 @@ public class App {
         //table history
 
         //table history hide
+
         historyjpanel.setVisible(false);
         removeButton.setVisible(false);
         deleteHistoryButton.setVisible(false);
@@ -387,21 +390,42 @@ public class App {
     deleteHistoryButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            Object[] options = {"Đồng ý Xóa",
+                    "Không Đồng Ý, Quay lại"
+                    };
+            int n = JOptionPane.showOptionDialog(panel1,
+                    "Would you like some green eggs to go "
+                            + "with that ham?",
+                    "A Silly Question",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[1]);
 
-            try {
-                PrintWriter writer = new PrintWriter("data\\FromTo.txt");
-                writer.print("");
-                writer.close();
-                PrintWriter writer1 = new PrintWriter("data\\From.txt");
-                writer1.print("");
-                writer1.close();PrintWriter writer2 = new PrintWriter("data\\To.txt");
-                writer2.print("");
-                writer2.close();
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
+
+
+            if(n==0)
+            {
+                try {
+                    PrintWriter writer = new PrintWriter("data\\FromTo.txt");
+                    writer.print("");
+                    writer.close();
+                    PrintWriter writer1 = new PrintWriter("data\\From.txt");
+                    writer1.print("");
+                    writer1.close();PrintWriter writer2 = new PrintWriter("data\\To.txt");
+                    writer2.print("");
+                    writer2.close();
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+                loadDataTotable();
+                infoBox("Đã xóa toàn bộ lịch sử", "Information");
+                xn=-1;
             }
-            loadDataTotable();
-            infoBox("Đã xóa toàn bộ lịch sử", "Information");
+
+
+
         }
     });
     removeButton.addActionListener(new ActionListener() {
