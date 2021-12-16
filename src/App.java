@@ -335,6 +335,7 @@ public class App {
                         infoBox("Đã xảy ra lỗi, vui lòng nhập lại", "Eror");
                     }
                     loadDataTotable();
+                    System.out.println(langKey.length);
                 }
 
             }
